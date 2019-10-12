@@ -1,9 +1,12 @@
 
+
 library(tidyverse)
 library(gganimate)
 library(haven)
 library(viridis)
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+setwd("~/Dropbox/Adler and Ansell/Populism WEP/Brexit/Correct Data")
 
 hanretty<-read_csv("Hanretty.csv")
 hanretty<-hanretty %>% 
@@ -165,12 +168,12 @@ final_mps %>%  summarise(mean_con = mean(Con),
                          min_bxp = min(BXP)
 )
 
-#### Create scatterplots of winners of a particular setup
+#### Create scatterplots of winners of a particular setup - Yougov Oct 8-9
 
-cons_surv<-.32
-lab_surv<-.24
-lib_surv<-.21
-bxp_surv<-.13
+cons_surv<-.35
+lab_surv<-.22
+lib_surv<-.20
+bxp_surv<-.12
 
 cons_param<- 0
 lab_param<- 0
@@ -229,3 +232,91 @@ final_mps_w %>%
   ggplot(aes(x=lab_min_con_17, y = han_est_leave, label=winner, color=winner, alpha=0.5))+geom_text()+
   scale_color_manual(values=c("blue", "red", "orange"))+theme_classic()+
   xlab("Labour Lead over Conservatives 2017") +ylab("Brexit Vote (Hanretty)")+theme(legend.position = "none") 
+
+# With MP names
+
+
+final_mps_w %>% 
+  ggplot(aes(x=lab_min_con_17, y = han_est_leave, label=name_mp, color=winner, alpha=0.5))+geom_text()+
+  scale_color_manual(values=c("blue", "red", "orange"))+theme_classic()+
+  xlab("Labour Lead over Conservatives 2017") +ylab("Brexit Vote (Hanretty)")+theme(legend.position = "none") 
+
+# With MP names
+
+
+final_mps_w %>% 
+  mutate(party = ifelse(party=="LD", "Lib", party)) %>% 
+  filter(party!=winner) %>% 
+  ggplot(aes(x=lab_min_con_17, y = han_est_leave, label=name_mp, color=winner, alpha=0.5))+geom_text()+
+  scale_color_manual(values=c("blue", "red", "orange"))+theme_classic()+
+  xlab("Labour Lead over Conservatives 2017") +ylab("Brexit Vote (Hanretty)")+theme(legend.position = "none") 
+
+# Function to create graphs of losing MPs and calculate seats
+
+library(rlang)
+
+mp_poll <- function(cons_surv, lab_surv, lib_surv, bxp_surv, cons_param, lab_param, lib_param, bxp_param){
+  
+  final_mps<-mps_simple_ew %>% 
+    mutate (han_est_norm = han_est_leave-mean(han_est_leave),
+            cons_est = cons_pc_17+{{cons_param}}*han_est_norm,
+            cons_adj = cons_est*({{cons_surv}}/mean(cons_est)),
+            cons_prob = rnorm(mean = cons_adj, sd=0.03, n()),
+            lab_est = lab_pc_17+{{lab_param}}*han_est_norm,
+            lab_adj = lab_est*({{lab_surv}}/mean(lab_est)),
+            lab_prob = rnorm(mean = lab_adj, sd=0.03, n()),
+            lib_est = lib_pc_17+{{lib_param}}*han_est_norm,
+            lib_adj = lib_est*({{lib_surv}}/mean(lib_est)),
+            lib_prob = rnorm(mean = lib_adj, sd=0.03, n()),
+            bxp_adj = {{bxp_surv}}+{{bxp_param}}*han_est_norm,
+            bxp_prob = rnorm(mean = bxp_adj, sd=0.03, n()),
+            Con = case_when(cons_prob>=0 & cons_prob<=1 ~ cons_prob,
+                            cons_prob>1 ~ 1,
+                            cons_prob<0 ~ 0),
+            Lab = case_when(lab_prob>=0 & lab_prob<=1 ~ lab_prob,
+                            lab_prob>1 ~ 1,
+                            lab_prob<0 ~ 0),
+            Lib = case_when(lib_prob>=0 & lib_prob<=1 ~ lib_prob,
+                            lib_prob>1 ~ 1,
+                            lib_prob<0 ~ 0),
+            BXP = case_when(bxp_prob>=0 & bxp_prob<=1 ~ bxp_prob,
+                            bxp_prob>1 ~ 1,
+                            bxp_prob<0 ~ 0)
+    )
+  
+  
+  final_mps_w <<- final_mps %>% 
+    mutate(winner = colnames(final_mps[, 34:37] )[max.col(final_mps[, 34:37] ,ties.method="first")]) 
+  
+  print(final_mps_w %>%  group_by(winner) %>% count())
+  
+  no_parties<- length(unique(final_mps_w$winner))
+  
+  if (no_parties==3){
+    
+    final_mps_w %>% 
+      mutate(party = ifelse(party=="LD", "Lib", party)) %>% 
+      filter(party!=winner) %>% 
+      filter(party!="Ind") %>% 
+      ggplot(aes(x=lab_min_con_17, y = han_est_leave, label=name_mp, color=winner, alpha=0.5))+geom_text()+
+      scale_color_manual(values=c("blue", "red", "orange"))+theme_classic()+
+      xlab("Labour Lead over Conservatives 2017") +ylab("Brexit Vote (Hanretty)")+theme(legend.position = "none") 
+    
+    
+  }
+  
+  else {
+    final_mps_w %>% 
+      mutate(party = ifelse(party=="LD", "Lib", party)) %>% 
+      filter(party!=winner) %>% 
+      filter(party!="Ind") %>% 
+      ggplot(aes(x=lab_min_con_17, y = han_est_leave, label=name_mp, color=winner, alpha=0.5))+geom_text()+
+      scale_color_manual(values=c("#40E0D0","blue", "red", "orange"))+theme_classic()+
+      xlab("Labour Lead over Conservatives 2017") +ylab("Brexit Vote (Hanretty)")+theme(legend.position = "none") 
+  }
+  
+}
+
+mp_poll(.35, .22, .2, .12, 0,0,0,0)
+
+
