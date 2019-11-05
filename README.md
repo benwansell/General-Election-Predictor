@@ -8,3 +8,5 @@ Nov 1st 2019: Added new Additive Model which uses simple Uniform National Swing 
 Shiny application responding to Shiny code here is available at https://benwansell.shinyapps.io/General-Election-Predictor/ (currently offline due to overuse!)
 
 Nov 4th 2019: Added Chris Hanretty's collection of Best for Britain polling data. Added BfB data to GE predictor to compare UNS to BfB. 
+
+Nov 5th 2019: Added code to predict Best for Britain's recommendation for tactical voting.
