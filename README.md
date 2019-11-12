@@ -10,3 +10,5 @@ Shiny application responding to Shiny code here is available at https://benwanse
 Nov 4th 2019: Added Chris Hanretty's collection of Best for Britain polling data. Added BfB data to GE predictor to compare UNS to BfB. 
 
 Nov 5th 2019: Added code to predict Best for Britain's recommendation for tactical voting.
+
+Nov 12th. Added a set of scenarios for each Leave and Remain 'alliance'. Note all data is now being pulled in from parlitools.
