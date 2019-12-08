@@ -1,0 +1,12 @@
+name: TacticalVoting_GE19
+title: TacticalVoting_GE19
+username:
+account: livedataoxford
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1577440
+bundleId: 2650816
+url: https://livedataoxford.shinyapps.io/TacticalVoting_GE19/
+when: 1575841923.12892
+asMultiple: FALSE
+asStatic: FALSE
